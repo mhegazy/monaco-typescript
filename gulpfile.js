@@ -14,7 +14,8 @@ var uglify = require('gulp-uglify');
 var rimraf = require('rimraf');
 var es = require('event-stream');
 
-var TYPESCRIPT_LIB_SOURCE = path.join(__dirname, 'node_modules', 'typescript', 'lib');
+//var TYPESCRIPT_LIB_SOURCE = path.join(__dirname, 'node_modules', 'typescript', 'lib');
+var TYPESCRIPT_LIB_SOURCE = 'c:/ts/built/local';
 var TYPESCRIPT_LIB_DESTINATION = path.join(__dirname, 'lib');
 
 gulp.task('clean-release', function(cb) { rimraf('release', { maxBusyTries: 1 }, cb); });
