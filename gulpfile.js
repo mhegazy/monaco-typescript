@@ -122,13 +122,27 @@ export = ts;
 });
 
 /**
+ * Compine all lib files into one
+ * @param {string} libFileName
+ */
+function getMergedLibContents(libFileName) {
+    var srcPath = path.join(TYPESCRIPT_LIB_SOURCE, libFileName);
+
+    var contents = fs.readFileSync(srcPath).toString();
+
+    return contents.replace(/\/\/\/\s*<reference\s+lib=\"([^\"]+)\"\s*\/>/g, (_match, lib) => {
+        return getMergedLibContents("lib." + lib + ".d.ts");
+    });
+}
+
+/**
  * Import a lib*.d.ts file from TypeScript's dist
  */
 function importLibDeclarationFile(name) {
 	var dstName = name.replace(/\.d\.ts$/, '').replace(/\./g, '-') + '-ts';
 	var srcPath = path.join(TYPESCRIPT_LIB_SOURCE, name);
 
-	var contents = fs.readFileSync(srcPath).toString();
+    var contents = getMergedLibContents(name);
 
 	var dstPath1 = path.join(TYPESCRIPT_LIB_DESTINATION, dstName + '.js');
 	fs.writeFileSync(dstPath1,
