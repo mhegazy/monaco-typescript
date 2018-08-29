@@ -110,19 +110,19 @@ export class TypeScriptWorker implements ts.LanguageServiceHost {
 
 	getSyntacticDiagnostics(fileName: string): Promise<ts.Diagnostic[]> {
 		const diagnostics = this._languageService.getSyntacticDiagnostics(fileName);
-		diagnostics.forEach(diag => diag.file = undefined); // diag.file cannot be JSON'yfied
+		diagnostics.forEach(stripFileFields);
 		return Promise.as(diagnostics);
 	}
 
 	getSemanticDiagnostics(fileName: string): Promise<ts.Diagnostic[]> {
 		const diagnostics = this._languageService.getSemanticDiagnostics(fileName);
-		diagnostics.forEach(diag => diag.file = undefined); // diag.file cannot be JSON'yfied
+		diagnostics.forEach(stripFileFields);
 		return Promise.as(diagnostics);
 	}
 
 	getCompilerOptionsDiagnostics(fileName: string): Promise<ts.Diagnostic[]> {
 		const diagnostics = this._languageService.getCompilerOptionsDiagnostics();
-		diagnostics.forEach(diag => diag.file = undefined); // diag.file cannot be JSON'yfied
+		diagnostics.forEach(stripFileFields);
 		return Promise.as(diagnostics);
 	}
 
@@ -172,6 +172,14 @@ export class TypeScriptWorker implements ts.LanguageServiceHost {
 
 	getEmitOutput(fileName: string): Promise<ts.EmitOutput> {
 		return Promise.as(this._languageService.getEmitOutput(fileName));
+	}
+}
+
+/** Files on diagnostics can't be be JSON-ified since files contain loops. */
+function stripFileFields(diag: ts.Diagnostic | ts.DiagnosticRelatedInformation): void {
+	diag.file = undefined;
+	if ((diag as ts.Diagnostic).relatedInformation) {
+		(diag as ts.Diagnostic).relatedInformation!.forEach(stripFileFields);
 	}
 }
 
